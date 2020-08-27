@@ -1,45 +1,56 @@
 from Warehouse import Warehouse
 from InventoryAllocator import InventoryAllocator
+import unittest
 
-# Helper function to output the results of the unit tests
-def unit_test(order, warehouses, expected_output):
-    ia = InventoryAllocator(order, warehouses)
-    real_output = str(ia.generate_shipment())
-    print(f"order:              {order}")
-    print(f"warehouses:         {warehouses}")
-    print(f"expected output:    {expected_output}")
-    print(f"actual output:      {real_output}")
-    print(f"expected == actual: {expected_output == real_output}")
-    print()
+class IATester(unittest.TestCase):
+    def test_public_1(self):
+        order = {"apple" : 1}
+        warehouses = [Warehouse("owd", {"apple" : 1})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[{name: owd, inventory: {'apple': 1}}]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
 
+    def test_public_2(self):
+        order = {"apple" : 10}
+        warehouses = [Warehouse("owd", {"apple" : 5}), Warehouse("dm", {"apple" : 5})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[{name: owd, inventory: {'apple': 5}}, {name: dm, inventory: {'apple': 5}}]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
 
-# Public Test 1: Happy Case, Order can be shipped using one warehouse
-print("Public Test 1: Happy Case, Order can be shipped using one warehouse")
-order = {"apple" : 1}
-warehouses = [Warehouse("owd", {"apple" : 1})]
-expected_output = "[{name: owd, inventory: {'apple': 1}}]"
-unit_test(order, warehouses, expected_output)
+    def test_public_3(self):
+        order = {"apple" : 1}
+        warehouses = [Warehouse("owd", {"apple" : 0})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
 
-# Public Test 2: Order can be shipped using multiple warehouses
-print("Public Test 2: Order can be shipped using multiple warehouses")
-order = {"apple" : 10}
-warehouses = [Warehouse("owd", {"apple" : 5}), Warehouse("dm", {"apple" : 5})]
-expected_output = "[{name: owd, inventory: {'apple': 5}}, {name: dm, inventory: {'apple': 5}}]"
-unit_test(order, warehouses, expected_output)
+    def test_public_4(self):
+        order = {"apple" : 2}
+        warehouses = [Warehouse("owd", {"apple" : 1})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
+###############################################################################
 
+    # base case 1
+    def test_private_1(self):
+        order = {"a" : 6, "b" : 7, "c" : 5}
+        warehouses = [Warehouse("w1", {"a" : 5, "b" : 7}), Warehouse("w2", {"a" : 6, "c" : 5})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[{name: w1, inventory: {'a': 5, 'b': 7}}, {name: w2, inventory: {'a': 1, 'c': 5}}]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
 
-# Public Test 3: Order cannot be shipped because there is not enough inventory
-print("Public Test 3: Order cannot be shipped because there is not enough inventory")
-order = {"apple" : 1}
-warehouses = [Warehouse("owd", {"apple" : 0})]
-expected_output = "[]"
-unit_test(order, warehouses, expected_output)
+    # edge case: you don't need any more of item a from w3, so there should be no shipments from w3
+    def test_private_2(self):
+        order = {"a" : 15}
+        warehouses = [Warehouse("w1", {"a" : 5, "b" : 2, "c" : 1}), Warehouse("w2", {"a" : 10, "b" : 4}), Warehouse("w3", {"a" : 4, "c" : 3})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = "[{name: w1, inventory: {'a': 5}}, {name: w2, inventory: {'a': 10}}]"
+        self.assertEqual(str(ia.generate_shipment()), expected_output)
 
-# Public Test 4: Order cannot be shipped because there is not enough inventory
-print("Public Test 4: Order cannot be shipped because there is not enough inventory")
-order = {"apple" : 2}
-warehouses = [Warehouse("owd", {"apple" : 1})]
-expected_output = "[]"
-unit_test(order, warehouses, expected_output)
+# main method
+if __name__ == '__main__':
+    unittest.main()
+
 
 
