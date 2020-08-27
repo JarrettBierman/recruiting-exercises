@@ -12,10 +12,10 @@ class InventoryAllocator:
     def generate_shipment(self):
         ret = []
         order_copy = self.order                                     # create a copy of orders to not lose data
-        order_items = list(order_copy.keys())
+        order_items = list(order_copy.keys())                       # gets a list of every order item 
         for warehouse in self.warehouses:                           # check each warehouse
             temp_dict = {}                                          # what this warehouse will give
-            for item in order_items:                                # check each item we need to get
+            for item in order_items:                                # check each item we need to get per warehouse
                 if not warehouse.inventory.get(item):               #check if item exists in the warehouse inventory
                     continue
                 if order_copy[item] > warehouse.inventory[item]:    # if the warehouse does not have enough of the item 
