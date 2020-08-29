@@ -95,6 +95,14 @@ class IATester(unittest.TestCase):
         expected_output = []
         self.assertEqual(ia.generate_shipment(), expected_output)
 
+    # edge case: empty order and empty warehouse
+    def test_private_empty_both(self):
+        order = {}
+        warehouses = [Warehouse("empty", {})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = []
+        self.assertEqual(ia.generate_shipment(), expected_output)
+
     # edge case: looks through 2 warehouses, one is empty, so skips it and completes order with second warehouse
     def test_private_empty_warehouse_2(self):
         order = {"a" : 1}
@@ -103,17 +111,24 @@ class IATester(unittest.TestCase):
         expected_output = [Warehouse("w2", {"a" : 1})]
         self.assertEqual(ia.generate_shipment(), expected_output)
 
+    # edge case: order and warhouse dicts are in different order
+    def test_private_empty_warehouse_2(self):
+        order = {"a" : 1, "b" : 1, "c" : 1}
+        warehouses = [Warehouse("w1", {"c" : 1, "a" : 1, "b" : 1})]
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = [Warehouse("w1", {"c" : 1, "a" : 1, "b" : 1})]
+        self.assertEqual(ia.generate_shipment(), expected_output)
+
     # edge case: trying to order to with an empty order
-    def test_private_7(self):
+    def test_private_empty_order(self):
         order = {}
         warehouses = [Warehouse("w1", {"a" : 1})]
         ia = InventoryAllocator(order, warehouses)
         expected_output = []
         self.assertEqual(ia.generate_shipment(), expected_output)
-    
         
     # edge case: has enough inventory for some items in order but not every item
-    def test_private_9(self):
+    def test_private_not_enough_inventory(self):
         order = {"chair" : 100, "couch" : 50, "bed" : 30}
         warehouses = []
         warehouses.append(Warehouse("w1", {"chair" : 30, "couch" : 30}))
@@ -121,6 +136,20 @@ class IATester(unittest.TestCase):
         warehouses.append(Warehouse("w3", {"chair" : 30, "couch" : 20}))
         ia = InventoryAllocator(order, warehouses)
         expected_output = [] # not enough chairs to complete order
+        self.assertEqual(ia.generate_shipment(), expected_output)
+
+    # edge case: items taken from each warehouse
+    def test_private_each_warehouse(self):
+        order = {"a" : 5, "b" : 5, "c" : 5}
+        warehouses = []
+        warehouses.append(Warehouse("w1", {"a" : 5, "d" : 1}))
+        warehouses.append(Warehouse("w2", {"b" : 5, "d" : 2}))
+        warehouses.append(Warehouse("w3", {"c" : 5, "d" : 2}))
+        ia = InventoryAllocator(order, warehouses)
+        expected_output = []
+        expected_output.append(Warehouse("w1", {"a" : 5}))
+        expected_output.append(Warehouse("w2", {"b" : 5}))
+        expected_output.append(Warehouse("w3", {"c" : 5}))
         self.assertEqual(ia.generate_shipment(), expected_output)
     
 
