@@ -11,4 +11,4 @@ All necessary code will be found in the src folder. Everything is coded in Pytho
 - Run the following command to run and observe the output of each unit test:
   - `python3 ia_unit_tests.py -v`
   
-  All code was written and submitted by Jarrett Bierman
+All code was written and submitted by Jarrett Bierman
